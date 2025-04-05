@@ -65,9 +65,9 @@ func main() {
 		Handler: serMux,
 	}
 
-	serMux.HandleFunc("/healthz", handlerReadiness)
-	serMux.HandleFunc("/metrics", apiCfg.handlerMetrics)
-	serMux.HandleFunc("/reset", apiCfg.handlerReset)
+	serMux.HandleFunc("GET /healthz", handlerReadiness)
+	serMux.HandleFunc("GET /metrics", apiCfg.handlerMetrics)
+	serMux.HandleFunc("POST /reset", apiCfg.handlerReset)
 
 	log.Printf("Serving files from %s on port %s", filepathRoot, port)
 	log.Fatal(server.ListenAndServe())
