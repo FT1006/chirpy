@@ -1,11 +1,25 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
-	"sync/atomic"
+	"os"
+	"time"
+
+	"github.com/FT1006/chirpy/internal/database"
+	"github.com/google/uuid"
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
+
+type User struct {
+	ID        uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Email     string    `json:"email"`
+}
 
 func handlerReadiness(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -17,31 +31,14 @@ func handlerReadiness(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *apiConfig) handlerMetrics(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	hitCount := cfg.fileserverHits.Load()
-	log.Printf("Hits: %d", hitCount)
 
-	_, err := w.Write([]byte(fmt.Sprintf("Hits: %d", hitCount)))
+	_, err := w.Write([]byte(fmt.Sprintf("<html><body><h1>Welcome, Chirpy Admin</h1><p>Chirpy has been visited %d times!</p></body></html>", hitCount)))
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func (cfg *apiConfig) handlerReset(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	cfg.fileserverHits.Store(0)
-	log.Printf("Reset hits")
-
-	_, err := w.Write([]byte("Hits reset to 0"))
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-type apiConfig struct {
-	fileserverHits atomic.Int32
 }
 
 func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
@@ -50,12 +47,25 @@ func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-	
+
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dbURL := os.Getenv("DB_URL")
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	filepathRoot := "."
 	port := "8080"
 
-	apiCfg := apiConfig{}
+	apiCfg := apiConfig{
+		dbQueries: database.New(db),
+	}
 
 	serMux := http.NewServeMux()
 	serMux.Handle("/app/", apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot)))))
@@ -65,9 +75,11 @@ func main() {
 		Handler: serMux,
 	}
 
-	serMux.HandleFunc("GET /healthz", handlerReadiness)
-	serMux.HandleFunc("GET /metrics", apiCfg.handlerMetrics)
-	serMux.HandleFunc("POST /reset", apiCfg.handlerReset)
+	serMux.HandleFunc("GET /api/healthz", handlerReadiness)
+	serMux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
+	serMux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
+	serMux.HandleFunc("POST /api/validate_chirp", handlerValidateChirp)
+	serMux.HandleFunc("POST /api/users", apiCfg.handlerCreateUser)
 
 	log.Printf("Serving files from %s on port %s", filepathRoot, port)
 	log.Fatal(server.ListenAndServe())

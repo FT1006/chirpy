@@ -1,0 +1,36 @@
+@baseUrl = http://localhost:8080/
+@fileserverUrl = {{baseUrl}}app/
+@adminserverUrl = {{baseUrl}}admin/
+
+@publicUrl = {{baseUrl}}api/
+
+### Get fileserver or index.html
+GET {{fileserverUrl}}
+
+### Get assets/logo.png
+GET {{fileserverUrl}}/assets/logo.png
+
+### Check the readiness
+GET {{publicUrl}}healthz
+
+### Check the metrics
+GET {{adminserverUrl}}metrics
+
+### Reset the metrics
+POST {{adminserverUrl}}reset
+
+### Validate a chirp
+POST {{publicUrl}}validate_chirp
+
+{
+  "body": "I hear Mastodon is better than Chirpy. sharbert I need to migrate",
+  "extra": "this should be ignored"
+}
+
+### Create a user
+POST {{publicUrl}}users
+Content-Type: application/json
+
+{
+  "email": "test@example.com"
+}
