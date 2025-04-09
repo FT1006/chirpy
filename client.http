@@ -34,3 +34,12 @@ Content-Type: application/json
 {
   "email": "test@example.com"
 }
+
+### Create a chirp
+POST {{publicUrl}}chirps
+Content-Type: application/json
+
+{
+  "body": "I hear Mastodon is better than Chirpy. sharbert I need to migrate",
+  "user_id": "b466f0d7-0059-487a-bc82-07067494b577"
+}

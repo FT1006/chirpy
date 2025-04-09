@@ -21,6 +21,14 @@ type User struct {
 	Email     string    `json:"email"`
 }
 
+type Chirp struct {
+	ID        uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Body      string    `json:"body"`
+	UserID    uuid.UUID `json:"user_id"`
+}
+
 func handlerReadiness(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
@@ -78,7 +86,7 @@ func main() {
 	serMux.HandleFunc("GET /api/healthz", handlerReadiness)
 	serMux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
 	serMux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
-	serMux.HandleFunc("POST /api/validate_chirp", handlerValidateChirp)
+	serMux.HandleFunc("POST /api/chirps", apiCfg.handlerCreateChirp)
 	serMux.HandleFunc("POST /api/users", apiCfg.handlerCreateUser)
 
 	log.Printf("Serving files from %s on port %s", filepathRoot, port)
