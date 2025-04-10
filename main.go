@@ -90,6 +90,7 @@ func main() {
 	serMux.HandleFunc("POST /api/users", apiCfg.handlerCreateUser)
 	serMux.HandleFunc("GET /api/chirps", apiCfg.handlerGetAllChirps)
 	serMux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerGetAChirp)
+	serMux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
 
 	log.Printf("Serving files from %s on port %s", filepathRoot, port)
 	log.Fatal(server.ListenAndServe())
