@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/FT1006/chirpy/internal/auth"
 	"github.com/FT1006/chirpy/internal/database"
 	"github.com/google/uuid"
 )
@@ -16,9 +17,26 @@ func (cfg *apiConfig) handlerCreateChirp(w http.ResponseWriter, r *http.Request)
 		UserID uuid.UUID `json:"user_id"`
 	}
 
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Error getting token")
+		return
+	}
+
+	fmt.Println("Extracted Token:", token)
+	fmt.Println("Loaded jwtSecret:", cfg.jwtSecret)
+	userID, err := auth.ValidateJWT(token, cfg.jwtSecret)
+	if err != nil {
+		fmt.Println("Validation Error:", err)
+		respondWithError(w, http.StatusUnauthorized, "Error validating token")
+		return
+	}
+
+	fmt.Println("Validated UserID:", userID)
+
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
-	err := decoder.Decode(&params)
+	err = decoder.Decode(&params)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Error decoding parameters: %s", err))
 		return
@@ -35,7 +53,7 @@ func (cfg *apiConfig) handlerCreateChirp(w http.ResponseWriter, r *http.Request)
 	cleanedBody := cleanBody(params.Body)
 	chirpParams := database.CreateChirpParams{
 		Body:   cleanedBody,
-		UserID: params.UserID,
+		UserID: userID,
 	}
 
 	fmt.Printf("Database params: %v", chirpParams)
@@ -54,18 +72,6 @@ func (cfg *apiConfig) handlerCreateChirp(w http.ResponseWriter, r *http.Request)
 		Body:      createdChirp.Body,
 		UserID:    createdChirp.UserID,
 	})
-
-	// TODO: Add chirp to user's chirps
-	// TODO: Add user to chirp's users
-
-	// TODO: Send email to user
-	// TODO: Send email to admins
-
-	// TODO: Add chirp to admin's chirps
-	// TODO: Add admin to chirp's admins
-
-	// TODO: Send email to admin
-
 }
 
 func cleanBody(body string) string {

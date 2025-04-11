@@ -19,6 +19,7 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Email     string    `json:"email"`
+	Token     string    `json:"token"`
 }
 
 type Chirp struct {
@@ -68,11 +69,15 @@ func main() {
 		log.Fatal(err)
 	}
 
+	jwtSecret := os.Getenv("JWT_SECRET")
+	fmt.Println("Loaded JWT_SECRET in main:", jwtSecret)
+
 	filepathRoot := "."
 	port := "8080"
 
 	apiCfg := apiConfig{
 		dbQueries: database.New(db),
+		jwtSecret: jwtSecret,
 	}
 
 	serMux := http.NewServeMux()
