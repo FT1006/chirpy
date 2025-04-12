@@ -43,3 +43,12 @@ Content-Type: application/json
   "body": "I hear Mastodon is better than Chirpy. sharbert I need to migrate",
   "user_id": "b466f0d7-0059-487a-bc82-07067494b577"
 }
+
+### Update a user
+PUT {{publicUrl}}users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjaGlycHkiLCJzdWIiOiI2MjkwNjU5Yi1mM2M5LTQyMjYtYWY4ZC01NTg1MGMzYTE5NmEiLCJleHAiOjE3NDQ0NTM2OTcsImlhdCI6MTc0NDQ1MDA5N30.nB01GuG97W1v_uzasSMJ1xGWZzm6Vm269b3vSogk-YU
+
+{
+  "email": "walter@breakingbad.com",
+  "password": "losPollosHermanos"
+}

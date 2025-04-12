@@ -15,11 +15,12 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Email     string    `json:"email"`
-	Token     string    `json:"token"`
+	ID           uuid.UUID `json:"id"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	Email        string    `json:"email"`
+	Token        string    `json:"token"`
+	RefreshToken string    `json:"refresh_token"`
 }
 
 type Chirp struct {
@@ -96,6 +97,9 @@ func main() {
 	serMux.HandleFunc("GET /api/chirps", apiCfg.handlerGetAllChirps)
 	serMux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerGetAChirp)
 	serMux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
+	serMux.HandleFunc("POST /api/refresh", apiCfg.handlerRefresh)
+	serMux.HandleFunc("POST /api/revoke", apiCfg.handlerRevoke)
+	serMux.HandleFunc("PUT /api/users", apiCfg.handlerUpdateUser)
 
 	log.Printf("Serving files from %s on port %s", filepathRoot, port)
 	log.Fatal(server.ListenAndServe())
