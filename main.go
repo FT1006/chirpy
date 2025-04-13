@@ -21,6 +21,7 @@ type User struct {
 	Email        string    `json:"email"`
 	Token        string    `json:"token"`
 	RefreshToken string    `json:"refresh_token"`
+	IsChirpyRed  bool      `json:"is_chirpy_red"`
 }
 
 type Chirp struct {
@@ -73,12 +74,16 @@ func main() {
 	jwtSecret := os.Getenv("JWT_SECRET")
 	fmt.Println("Loaded JWT_SECRET in main:", jwtSecret)
 
+	polkaApiKey := os.Getenv("POLKA_KEY")
+	fmt.Println("Loaded POLKA_KEY in main:", polkaApiKey)
+
 	filepathRoot := "."
 	port := "8080"
 
 	apiCfg := apiConfig{
-		dbQueries: database.New(db),
-		jwtSecret: jwtSecret,
+		dbQueries:   database.New(db),
+		jwtSecret:   jwtSecret,
+		polkaApiKey: polkaApiKey,
 	}
 
 	serMux := http.NewServeMux()
@@ -100,6 +105,8 @@ func main() {
 	serMux.HandleFunc("POST /api/refresh", apiCfg.handlerRefresh)
 	serMux.HandleFunc("POST /api/revoke", apiCfg.handlerRevoke)
 	serMux.HandleFunc("PUT /api/users", apiCfg.handlerUpdateUser)
+	serMux.HandleFunc("DELETE /api/chirps/{chirpID}", apiCfg.handlerDeleteAChirp)
+	serMux.HandleFunc("POST /api/polka/webhooks", apiCfg.handlerPolkaWebhooks)
 
 	log.Printf("Serving files from %s on port %s", filepathRoot, port)
 	log.Fatal(server.ListenAndServe())

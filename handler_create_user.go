@@ -38,10 +38,11 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	}
 
 	newUser := User{
-		ID:        created.ID,
-		CreatedAt: created.CreatedAt,
-		UpdatedAt: created.UpdatedAt,
-		Email:     created.Email,
+		ID:          created.ID,
+		CreatedAt:   created.CreatedAt,
+		UpdatedAt:   created.UpdatedAt,
+		Email:       created.Email,
+		IsChirpyRed: created.IsChirpyRedTeam,
 	}
 
 	fmt.Println("HTTP 201 Created")
