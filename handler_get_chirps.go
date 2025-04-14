@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"sort"
 
 	"github.com/FT1006/chirpy/internal/database"
 	"github.com/google/uuid"
@@ -29,6 +30,21 @@ func (cfg *apiConfig) handlerGetAllChirps(w http.ResponseWriter, r *http.Request
 			respondWithError(w, http.StatusNotFound, fmt.Sprintf("Error getting chirps: %s", err)) // This is 404
 			return
 		}
+	}
+
+	sortOrder := r.URL.Query().Get("sort")
+
+	if sortOrder == "desc" {
+		sort.Slice(dbChirps, func(i, j int) bool {
+			return dbChirps[i].CreatedAt.After(dbChirps[j].CreatedAt)
+		})
+	} else {
+		if sortOrder != "asc" && sortOrder != "" {
+			fmt.Println("Invalid sort_by parameter. Sort order will be descending by default.")
+		}
+		sort.Slice(dbChirps, func(i, j int) bool {
+			return dbChirps[i].CreatedAt.Before(dbChirps[j].CreatedAt)
+		})
 	}
 
 	chirps := make([]Chirp, len(dbChirps))
