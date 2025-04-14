@@ -65,7 +65,7 @@ func (cfg *apiConfig) handlerUpdateUser(w http.ResponseWriter, r *http.Request) 
 		CreatedAt:   dbUpdatedUser.CreatedAt,
 		UpdatedAt:   dbUpdatedUser.UpdatedAt,
 		Email:       dbUpdatedUser.Email,
-		IsChirpyRed: dbUpdatedUser.IsChirpyRedTeam,
+		IsChirpyRed: dbUpdatedUser.IsChirpyRed,
 	}
 
 	respondWithJSON(w, 200, updatedUser)

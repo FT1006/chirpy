@@ -4,14 +4,31 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/FT1006/chirpy/internal/database"
 	"github.com/google/uuid"
 )
 
 func (cfg *apiConfig) handlerGetAllChirps(w http.ResponseWriter, r *http.Request) {
-	dbChirps, err := cfg.dbQueries.GetChirps(r.Context())
-	if err != nil {
-		respondWithError(w, http.StatusNotFound, fmt.Sprintf("Error getting chirps: %s", err)) // This is 404
-		return
+	authorID := r.URL.Query().Get("author_id")
+	var dbChirps []database.Chirp
+	if authorID != "" {
+		authorUUID, err := uuid.Parse(authorID)
+		if err != nil {
+			respondWithError(w, http.StatusNotFound, fmt.Sprintf("Invalid author_id: %s", err)) // This is 404
+			return
+		}
+		dbChirps, err = cfg.dbQueries.GetChirpsByAuthor(r.Context(), authorUUID)
+		if err != nil {
+			respondWithError(w, http.StatusNotFound, fmt.Sprintf("Error getting chirps: %s", err)) // This is 404
+			return
+		}
+	} else {
+		var err error
+		dbChirps, err = cfg.dbQueries.GetChirps(r.Context())
+		if err != nil {
+			respondWithError(w, http.StatusNotFound, fmt.Sprintf("Error getting chirps: %s", err)) // This is 404
+			return
+		}
 	}
 
 	chirps := make([]Chirp, len(dbChirps))

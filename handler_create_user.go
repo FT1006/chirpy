@@ -42,7 +42,7 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 		CreatedAt:   created.CreatedAt,
 		UpdatedAt:   created.UpdatedAt,
 		Email:       created.Email,
-		IsChirpyRed: created.IsChirpyRedTeam,
+		IsChirpyRed: created.IsChirpyRed,
 	}
 
 	fmt.Println("HTTP 201 Created")
