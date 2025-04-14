@@ -2,6 +2,69 @@
 
 Chirpy is a backend API service for a Twitter-like social platform where users can post short messages called "chirps". Built with Go, it provides user authentication, data persistence, and premium membership features.
 
+## How to Use
+
+### Prerequisites
+- Go 1.16 or newer
+- PostgreSQL
+- Environment variables properly configured
+
+### Setup and Installation
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/chirpy.git
+   cd chirpy
+   ```
+
+2. Set up environment variables:
+   ```
+   # Create a .env file
+   JWT_SECRET=your_secret_key
+   DATABASE_URL=postgres://username:password@localhost:5432/chirpy
+   POLKA_API_KEY=your_api_key
+   ```
+
+3. Initialize the database:
+   ```
+   # Run PostgreSQL migrations
+   goose -dir sql/schema postgres "postgres://username:password@localhost:5432/chirpy" up
+   ```
+
+4. Build and run:
+   ```
+   go build
+   ./chirpy
+   ```
+
+### Quick Start Guide
+1. **Create a user account**:
+   ```
+   curl -X POST http://localhost:8080/api/users \
+     -H "Content-Type: application/json" \
+     -d '{"email":"user@example.com","password":"securepassword"}'
+   ```
+
+2. **Login**:
+   ```
+   curl -X POST http://localhost:8080/api/login \
+     -H "Content-Type: application/json" \
+     -d '{"email":"user@example.com","password":"securepassword"}'
+   ```
+   Save the returned JWT token and refresh token.
+
+3. **Create a chirp**:
+   ```
+   curl -X POST http://localhost:8080/api/chirps \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"body":"Hello, Chirpy!"}'
+   ```
+
+4. **Get all chirps**:
+   ```
+   curl http://localhost:8080/api/chirps
+   ```
+
 ## Technical Architecture
 
 Chirpy is built using:
